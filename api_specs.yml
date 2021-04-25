@@ -1,0 +1,45 @@
+swagger: "2.0"
+info:
+  title: Backend API
+  description: API to calculate the BMI
+  version: 1.0.0
+basePath: /api
+schemes:
+  - http
+paths:
+  /calculateBMI:
+    post:
+      summary: Returns the file Path/URL where the output file is located.
+      description: It returns local file path or s3 public URL, that contains the output JSON file.
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Body to be sent
+        required: true
+        schema:
+          type: "object"
+          required:
+          - useLocalFile
+          - file
+          - uploadToS3
+          properties:
+            useLocalFile:
+              type: "boolean"
+              example: true
+            file:
+              type: "string"
+              example: "test.json"
+            uploadToS3:
+              type: "boolean"
+              example: false
+      responses:
+        422:
+          description: "Missing required fields."
+        500:
+          description: "Exception Occured!"
+        200:
+          description: "OK"

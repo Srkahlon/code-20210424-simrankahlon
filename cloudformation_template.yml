@@ -1,0 +1,245 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  RepositoryName:
+    Type: String
+    Description: Name for the task
+  TaskName:
+    Type: String
+    Description: Name for the task
+  ContainerName:
+    Type: String
+    Description: Name for the container
+  ContainerPort:
+    Type: Number
+    Description: Port on which the application will run inside the container
+  ContainerCpu:
+    Type: Number
+    Default: 256
+    Description: CPU to be given to each container
+  ContainerMemory:
+    Type: Number
+    Default: 512
+    Description: memory to be given to each container
+  ClusterName:
+    Type: String
+    Description: Cluster Name
+  ServiceName:
+    Type: String
+    Description: Service Name
+  DesiredCount:
+    Type: Number
+    Default: 0
+    Description: Desired count for the tasks
+  ImageURL:
+    Type: String
+  SecurityGroup:
+    Type: CommaDelimitedList
+  Subnet1:
+    Type: String
+    Default: subnet-82cf59c9
+  Subnet2:
+    Type: String
+    Default: subnet-c0badea4
+  Priority:
+    Type: Number
+    Default: 1
+    Description: Priority for the listener rule
+  Path:
+    Type: String
+    Default: "*"
+    Description: Path on the LB
+  VPCID:
+    Type: String
+    Default: "vpc-2293055a"
+    Description: The default VPC
+  RestAPI:
+    Type: String
+    Description: The name of the rest API
+  MethodRoute:
+    Type: String
+    Description: The Route for the rest API
+Resources:
+  #Creating the ECR Repository
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Ref 'RepositoryName'
+  #Creating the ECS Cluster
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties: 
+      ClusterName: !Ref 'ClusterName'
+  # This is a role which is used by the ECS tasks themselves.
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+  #Creating the task definition
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref 'TaskName'
+      Cpu: !Ref 'ContainerCpu'
+      Memory: !Ref 'ContainerMemory'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
+      ContainerDefinitions:
+        - Name: !Ref 'ContainerName'
+          Cpu: !Ref 'ContainerCpu'
+          Memory: !Ref 'ContainerMemory'
+          Image: !Ref 'ImageURL'
+          PortMappings:
+            - ContainerPort: !Ref 'ContainerPort'
+  #Create a Load Balancer
+  PublicLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+      - Key: idle_timeout.timeout_seconds
+        Value: '30'
+      Subnets:
+        - !Ref 'Subnet1'
+        - !Ref 'Subnet2'
+      SecurityGroups: !Ref SecurityGroup
+  # A dummy target group is used to setup the ALB to just drop traffic
+  # initially, before any real service target groups have been added.
+  DummyTargetGroupPublic:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'drop-1']]
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VPCID
+  # Creating the load balancer listener
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - PublicLoadBalancer
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'DummyTargetGroupPublic'
+          Type: 'forward'
+      LoadBalancerArn: !Ref 'PublicLoadBalancer'
+      Port: 80
+      Protocol: HTTP
+  #Creating the Service
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn: LoadBalancerRule
+    Properties:
+      ServiceName: !Ref 'ServiceName'
+      Cluster: !Ref 'ClusterName'
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: !Ref 'DesiredCount'
+      HealthCheckGracePeriodSeconds: '60'
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: !Ref SecurityGroup
+          Subnets:
+            - !Ref 'Subnet1'
+            - !Ref 'Subnet2'
+      TaskDefinition: !Ref 'TaskDefinition'
+      LoadBalancers:
+        - ContainerName: !Ref 'ContainerName'
+          ContainerPort: !Ref 'ContainerPort'
+          TargetGroupArn: !Ref 'TargetGroup'
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      TargetType: ip
+      Name: !Ref 'ServiceName'
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VPCID
+  # Create a rule on the load balancer for routing traffic to the target group
+  LoadBalancerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'TargetGroup'
+          Type: 'forward'
+      Conditions:
+        - Field: path-pattern
+          Values: [!Ref 'Path']
+      ListenerArn: !Ref 'PublicLoadBalancerListener'
+      Priority: !Ref 'Priority'
+  #Create the rest API
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties: 
+      Name: !Ref RestAPI
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  Method:
+    Type: AWS::ApiGateway::Method
+    DependsOn: [PublicLoadBalancer,RestApi]
+    Properties:
+      HttpMethod: POST
+      ResourceId: !GetAtt RestApi.RootResourceId
+      RestApiId: !Ref RestApi
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: HTTP_PROXY
+        Uri: !Join ["", ['http://', !GetAtt PublicLoadBalancer.DNSName,!Ref MethodRoute]]
+  Deployment: 
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: [RestApi,Method]
+    Properties: 
+      RestApiId: !Ref RestApi
+      Description: "Rest API deployment"
+      StageName: "DummyStage"
+  Stage: 
+    Type: AWS::ApiGateway::Stage
+    DependsOn: Deployment 
+    Properties:
+      StageName: dev
+      Description: development stage
+      RestApiId: !Ref RestApi
+      DeploymentId: !Ref Deployment
+#Outputs
+Outputs:
+  RepoName:
+    Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/{ECRRepository}"
+    Export:
+      Name: 'RepoName'
+    Description: Repository Name
