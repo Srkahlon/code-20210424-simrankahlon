@@ -1,9 +1,10 @@
 const request = require("supertest");
 const app = require("../../app.js");
 
+//Tests related to BMICalculator controller
 describe("BMI Calculator Controller", () => {
 
-    it("should check when correct file name is passed", async () => {
+    it("should check when correct file name is passed.", async () => {
         var useLocalFile = true;
         var fileName = "test.json";
         var uploadToS3 = true;
@@ -23,7 +24,7 @@ describe("BMI Calculator Controller", () => {
         );
     });
     
-    it("should check when incorrect file name is passed", async () => {
+    it("should check when incorrect file name is passed.", async () => {
         var useLocalFile = true;
         var fileName = "nosuchfile.json";
         var uploadToS3 = false;
@@ -41,7 +42,7 @@ describe("BMI Calculator Controller", () => {
         expect(response.body.message).toEqual("Exception Occurred!");
     });
 
-    it("should check when correct file name is passed and upload to s3 is False", async () => {
+    it("should check when correct file name is passed and upload to S3 is False.", async () => {
       var useLocalFile = true;
       var fileName = "test.json";
       var uploadToS3 = false;
