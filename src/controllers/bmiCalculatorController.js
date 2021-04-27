@@ -29,11 +29,11 @@ module.exports.BMICalculatorController = class BMICalculatorController {
                 //Else download life from s3.
                 fileName = await readWriteObj.downloadFromS3(file);
             }
-            //Parse the data and calculate the BMI.
+            //Parse the data and calculate the BMI
             var jsonData = await bmiObj.parseFile(fileName);
-            //Write the output to a file.
+            //Write the output to a file
             var outputFilePath = await readWriteObj.writeOutputToFile(jsonData,file);
-            //Flag to check whether the output file has to be uploaded on s3.
+            //Flag to check whether the output file has to be uploaded on s3
             if(uploadToS3)
             {
                 var s3URL = await readWriteObj.writeToS3(outputFilePath,file);
