@@ -10,7 +10,7 @@ paths:
   /calculateBMI:
     post:
       summary: Returns the file Path/URL where the output file is located.
-      description: It returns local file path or s3 public URL, that contains the output JSON file.
+      description: It returns local file path or S3 public URL, that contains the output JSON file.
       consumes:
       - application/json
       produces:
