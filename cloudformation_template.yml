@@ -29,7 +29,7 @@ Parameters:
   DesiredCount:
     Type: Number
     Default: 0
-    Description: Desired count for the tasks
+    Description: Desired count for the task
   ImageURL:
     Type: String
   SecurityGroup:
@@ -39,7 +39,7 @@ Parameters:
     Default: subnet-82cf59c9
   Subnet2:
     Type: String
-    Default: subnet-c0badea4
+    Default: subnet-c0badea7
   Priority:
     Type: Number
     Default: 1
@@ -50,7 +50,7 @@ Parameters:
     Description: Path on the LB
   VPCID:
     Type: String
-    Default: "vpc-2293055a"
+    Default: "vpc-2293055b"
     Description: The default VPC
   RestAPI:
     Type: String
