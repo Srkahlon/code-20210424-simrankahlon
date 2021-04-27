@@ -7,12 +7,12 @@ module.exports.BMICalculatorMiddleware = class BMICalculatorMiddleware
     async validateRequest(req,res,next) {
         var body = req.body;
         //Validation of the incoming request body.
-        const bmiSchema = Joi.object().keys({ 
+        const schema = Joi.object().keys({ 
             useLocalFile: Joi.boolean().required().label("Use Local File"),
             file: Joi.string().required().label("File Name"),
             uploadToS3: Joi.boolean().required().label("Upload to S3")
         });
-        const result = bmiSchema.validate(body);
+        const result = schema.validate(body);
         if(result.hasOwnProperty("error"))
         {
             //Validation exception.
@@ -20,6 +20,7 @@ module.exports.BMICalculatorMiddleware = class BMICalculatorMiddleware
         }
         else
         {
+            //Call the next step
             next();
         }
     }
