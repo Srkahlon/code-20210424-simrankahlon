@@ -1,9 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-global.__basedir = __dirname;
-
 app.use(bodyParser.json());
+global.__basedir = __dirname;
 
 require('./src/routes/apiRoutes.js')(app);
 
