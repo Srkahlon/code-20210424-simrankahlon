@@ -6,7 +6,7 @@ require('dotenv').config();
 
 module.exports.BMICalculatorService = class BMICalculatorService {
     
-    //Parse the Input File and calculate the BMI
+    //Parse the Input File and calculate the BMI.
     async parseFile(fileName)
     {
         try

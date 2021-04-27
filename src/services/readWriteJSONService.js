@@ -46,7 +46,7 @@ module.exports.ReadWriteJSONService = class ReadWriteJSONService {
         }
     }
 
-    //Write the BMI Output to a file
+    //Write the BMI Output to a file.
     async writeOutputToFile(jsonData,file)
     {
         try
@@ -61,7 +61,7 @@ module.exports.ReadWriteJSONService = class ReadWriteJSONService {
         }
     }
 
-    //Write the output file to s3 and return the public URL
+    //Write the output file to s3 and return the public URL.
     async writeToS3(fileName,fileKey)
     {
         try

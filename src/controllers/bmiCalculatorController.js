@@ -4,7 +4,7 @@ const globals = require('../config/globals');
 const bmiCalculatorService = require("../services/bmiCalculatorService.js").BMICalculatorService;
 const readWriteJSONService = require("../services/readWriteJSONService.js").ReadWriteJSONService;
 
-//Controller to calculate the BMI
+//Controller to calculate the BMI.
 module.exports.BMICalculatorController = class BMICalculatorController {
     
     async calculateBMI(req,res)

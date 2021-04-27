@@ -5,7 +5,7 @@ module.exports = (app) => {
     var bmiControllerObj = new bmiController();
     var bmiMiddlewareObj = new bmiMiddleware();
     
-    //To get the museum visitors basis on date.
+    //To get the museum visitors basis on date
     app.post(`/api/calculateBMI/`,
         bmiMiddlewareObj.validateRequest,
         bmiControllerObj.calculateBMI,

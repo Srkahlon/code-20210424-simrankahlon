@@ -3,10 +3,10 @@ const Joi = require('joi');
 
 module.exports.BMICalculatorMiddleware = class BMICalculatorMiddleware
 {
-    //Check if required fields are present
+    //Check if required fields are present.
     async validateRequest(req,res,next) {
         var body = req.body;
-        //Validation of the incoming request body
+        //Validation of the incoming request body.
         const bmiSchema = Joi.object().keys({ 
             useLocalFile: Joi.boolean().required().label("Use Local File"),
             file: Joi.string().required().label("File Name"),
@@ -15,7 +15,7 @@ module.exports.BMICalculatorMiddleware = class BMICalculatorMiddleware
         const result = bmiSchema.validate(body);
         if(result.hasOwnProperty("error"))
         {
-            //Validation exception
+            //Validation exception.
             res.status(422).send(result);
         }
         else
