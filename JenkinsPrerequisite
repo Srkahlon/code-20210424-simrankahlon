@@ -1,7 +1,7 @@
 1. I launched a Jenkins Bitnami server, available in AWS Marketplace.
-2. Docker and Node were manually installed on that server.
+2. Docker and Node are manually installed on that server.
 3. A AWS Role with premissions to ECS, ECR, API, ELB, CloudWatch was attached to this instance.
-4. Following Jenkins plugins were installed additionally.
+4. Following Jenkins plugins are installed additionally.
    - CloudBees AWS Credentials Plugin
    - Amazon ECR plugin
    - Docker plugin
