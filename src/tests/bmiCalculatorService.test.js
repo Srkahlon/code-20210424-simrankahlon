@@ -1,8 +1,9 @@
 const bmiCalculatorService = require("../services/bmiCalculatorService.js").BMICalculatorService;
 
+//Tests for BMICalculator Service class
 describe("BMI Calculator Service", () => {
 
-    it("should check if correct BMI is calculated", () => {
+    it("should check if correct BMI is calculated.", () => {
         var bmiObj = new bmiCalculatorService();
         var height = 175;
         var weight = 75;
@@ -10,7 +11,7 @@ describe("BMI Calculator Service", () => {
         expect(response).toEqual(24.49);
     });
 
-    it("should check if correct Category and Health risk is returned", () => {
+    it("should check if correct Category and Health risk is returned basis on the BMI passed.", () => {
         var bmiObj = new bmiCalculatorService();
         var bmi = 24.49;
         var response = bmiObj.checkBMICategoryAndHealthRisk(bmi);
