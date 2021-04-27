@@ -33,7 +33,7 @@ module.exports.BMICalculatorController = class BMICalculatorController {
             var jsonData = await bmiObj.parseFile(fileName);
             //Write the output to a file.
             var outputFilePath = await readWriteObj.writeOutputToFile(jsonData,file);
-            //Flag to check whether the output file has to be uploaded on s3
+            //Flag to check whether the output file has to be uploaded on s3.
             if(uploadToS3)
             {
                 var s3URL = await readWriteObj.writeToS3(outputFilePath,file);
@@ -59,5 +59,4 @@ module.exports.BMICalculatorController = class BMICalculatorController {
             });
         }
     }
-
 };
