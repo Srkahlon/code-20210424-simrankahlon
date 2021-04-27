@@ -3,7 +3,6 @@
 module.exports = {
     "GENERAL_EXCEPTION" : "Exception Occurred!",
     "REQUEST_RECEIVED" : "We have received your request!",
-    "DOWNLOAD_FROM_S3_EXCEPTION" : "Could not download file from S3.",
     "case1" : {
         "category" : "Underweight",
         "risk" : "Malnutrition risk"
